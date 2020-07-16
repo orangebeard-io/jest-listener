@@ -9,7 +9,10 @@
     "format:md": "prettier --write README.md",
     "format": "npm run format:js && npm run format:md",
     "test": "jest --detectOpenHandles --config ./jest.config.js",
-    "test:coverage": "jest --coverage"
+    "test:coverage": "jest --coverage",
+    "get-version": "echo $npm_package_version",
+    "update-version": "release-it --ci --no-git --no-npm.publish",
+    "create-changelog": "gren changelog --generate --override --token=$GITHUB_TOKEN"
   },
   "repository": {
     "type": "git",
@@ -36,7 +39,9 @@
     "eslint-config-prettier": "6.11.0",
     "eslint-plugin-import": "2.22.0",
     "eslint-plugin-prettier": "3.1.4",
+    "github-release-notes": "0.17.3",
     "jest": "26.1.0",
-    "prettier": "2.0.5"
+    "prettier": "2.0.5",
+    "release-it": "13.6.5"
   }
 }

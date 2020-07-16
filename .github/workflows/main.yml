@@ -1,4 +1,4 @@
-name: CI-pipeline
+name: main
 
 on: [push, pull_request]
 
@@ -8,7 +8,7 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
-      - name: Set up Node.js
+      - name: Setup Node.js
         uses: actions/setup-node@v1
         with:
           node-version: 12.x

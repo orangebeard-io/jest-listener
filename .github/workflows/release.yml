@@ -91,7 +91,7 @@ jobs:
       - name: Install Node dependencies
         run: npm ci
       - name: Update version
-        run: /
+        run: |
           npm run update-version
           git add package.json package-lock.json
           git commit -m "Update version"

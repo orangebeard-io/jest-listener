@@ -48,7 +48,7 @@ In your jest config section of `package.json`, add the following entry:
         ...
         "reporters": [
             "default",
-            ["@oranegbeard-io/jest-listener",
+            ["@orangebeard-io/jest-listener",
             {
                 "token": "00000000-0000-0000-0000-000000000000",
                 "endpoint": "https://your_endpoint",

@@ -37,7 +37,7 @@ jobs:
       - name: Create tag
         run: |
           git tag -a v${{ needs.get-version.outputs.releaseVersion }} -m ${{ needs.get-version.outputs.releaseVersion }}
-          git push origin master
+          git push origin master --follow-tags
       - name: Setup Node.js
         uses: actions/setup-node@v1
         with:

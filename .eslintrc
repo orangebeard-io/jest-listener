@@ -1,0 +1,31 @@
+{
+  "extends": ["airbnb-base", "prettier"],
+  "plugins": ["prettier"],
+  "globals": {
+    "expectAsync": true
+  },
+  "env": {
+    "node": true,
+    "es6": true,
+    "jest": true
+  },
+  "rules": {
+    "prettier/prettier": 2,
+    "no-unused-expressions": ["error", { "allowTernary": true, "allowShortCircuit": true }],
+    "import/prefer-default-export": 0,
+    "import/no-extraneous-dependencies": 0,
+    "no-restricted-globals": 0,
+    "prefer-destructuring": 0,
+    "import/no-cycle": 0,
+    "import/named": 0,
+    "no-else-return": 0,
+    "lines-between-class-members": 0,
+    "import/no-useless-path-segments": 0,
+    "no-invalid-this": 0,
+    "prefer-object-spread": 0,
+    "no-throw-literal": 0,
+    "no-shadow": 0,
+    "no-underscore-dangle": 0,
+    "class-methods-use-this": 0
+  }
+}

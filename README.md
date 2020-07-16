@@ -1,6 +1,6 @@
 <h1 align="center">
   <a href="https://github.com/orangebeard-io/jest-listener">
-    <img src="./.github/logo.svg" alt="Orangebeard.io Jest Listener" height="200">
+    <img src="https://raw.githubusercontent.com/orangebeard-io/jest-listener/master/.github/logo.svg" alt="Orangebeard.io Jest Listener" height="200">
   </a>
   <br>Orangebeard.io Jest Listener<br>
 </h1>
@@ -8,8 +8,8 @@
 <h4 align="center">Orangebeard listener for the Javascript <a href="https://jestjs.io/" target="_blank" rel="noopener">Jest</a> unit test framework.</h4>
 
 <p align="center">
-  <a href="https://npmjs.org/package/@oranegbeard-io/jest-listener">
-    <img src="https://img.shields.io/npm/v/@oranegbeard-io/jest-listener.svg?style=flat-square"
+  <a href="https://www.npmjs.com/package/@orangebeard-io/jest-listener">
+    <img src="https://img.shields.io/npm/v/@orangebeard-io/jest-listener.svg?style=flat-square"
       alt="NPM Version" />
   </a>
   <a href="https://github.com/orangebeard-io/jest-listener/actions">
@@ -35,7 +35,7 @@
 ### Install the npm package
 
 ```shell
-npm install --save-dev @oranegbeard-io/jest-listener
+npm install --save-dev @orangebeard-io/jest-listener
 ```
 
 ## Configuration

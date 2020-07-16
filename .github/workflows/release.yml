@@ -13,12 +13,21 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
-        with:
-          token: ${{ secrets.GH_TOKEN }}
       - name: Setup Node.js
         uses: actions/setup-node@v1
         with:
           node-version: 12.x
+      - name: Cache node modules
+        uses: actions/cache@v2
+        env:
+          cache-name: cache-node-modules
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-build-${{ env.cache-name }}-
+            ${{ runner.os }}-build-
+            ${{ runner.os }}-
       - name: Install Node dependencies
         run: npm ci
       - name: Get version from package.json
@@ -32,8 +41,6 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
-        with:
-          token: ${{ secrets.GH_TOKEN }}
       - name: Configure git
         run: |
           git config --global user.email "info@orangebeard.io"
@@ -46,11 +53,22 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: 12.x
+      - name: Cache node modules
+        uses: actions/cache@v2
+        env:
+          cache-name: cache-node-modules
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-build-${{ env.cache-name }}-
+            ${{ runner.os }}-build-
+            ${{ runner.os }}-
       - name: Install Node dependencies
         run: npm ci
       - name: Create CHANGELOG.md
         env:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: npm run create-changelog
       - name: Upload changelog as artifact
         uses: actions/upload-artifact@v2
@@ -63,8 +81,6 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
-        with:
-          token: ${{ secrets.GH_TOKEN }}
       - name: Download changelog for artifact
         uses: actions/download-artifact@v2
         with:
@@ -73,21 +89,57 @@ jobs:
         id: createRelease
         uses: actions/create-release@v1
         env:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: v${{ needs.get-version.outputs.releaseVersion }}
           release_name: Release v${{ needs.get-version.outputs.releaseVersion }}
           body_path: CHANGELOG.md
           draft: false
           prerelease: false
-  update-version:
+  publish-release:
     needs: [get-version, prepare-release, create-release]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
+      - name: Setup Node.js
+        uses: actions/setup-node@v1
         with:
-          token: ${{ secrets.GH_TOKEN }}
+          node-version: 12.x
+          registry-url: 'https://registry.npmjs.org'
+      - name: Cache node modules
+        uses: actions/cache@v2
+        env:
+          cache-name: cache-node-modules
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-build-${{ env.cache-name }}-
+            ${{ runner.os }}-build-
+            ${{ runner.os }}-
+      - name: Install Node dependencies
+        run: npm ci
+      - name: Publish to NPM
+        run: npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - name: Setup Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: 12.x
+          registry-url: 'https://npm.pkg.github.com'
+          scope: '@orangebeard-io'
+      - name: Publish to GitHub Packages
+        run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  update-version:
+    needs: [get-version, prepare-release, create-release, publish-release]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
       - name: Configure git
         run: |
           git config --global user.email "info@orangebeard.io"
@@ -96,6 +148,17 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: 12.x
+      - name: Cache node modules
+        uses: actions/cache@v2
+        env:
+          cache-name: cache-node-modules
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-build-${{ env.cache-name }}-
+            ${{ runner.os }}-build-
+            ${{ runner.os }}-
       - name: Install Node dependencies
         run: npm ci
       - name: Update version

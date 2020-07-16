@@ -73,7 +73,7 @@ In your jest config section of `package.json`, add the following entry:
 
 ### Environment properties
 
-Properties can also be set in the build, by passing them as environment variables. It's important to mention that environment variables hashave precedence over the `package.json` definition.
+Properties can also be set in the build, by passing them as environment variables. It's important to mention that environment variables have precedence over the `package.json` definition.
 
 ```shell
 $ export ORANGEBEARD_UUID=XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX

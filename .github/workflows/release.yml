@@ -75,6 +75,7 @@ jobs:
           draft: false
           prerelease: false
   update-version:
+    needs: [get-version, prepare-release, create-release]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository

@@ -1,6 +1,6 @@
 {
   "name": "@orangebeard-io/jest-listener",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Orangebeard listener for the Javascript Jest unit test framework",
   "main": "index.js",
   "scripts": {

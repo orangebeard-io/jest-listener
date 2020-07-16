@@ -13,6 +13,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
+        with:
+          token: ${{ secrets.GH_TOKEN }}
       - name: Setup Node.js
         uses: actions/setup-node@v1
         with:
@@ -30,6 +32,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
+        with:
+          token: ${{ secrets.GH_TOKEN }}
       - name: Configure git
         run: |
           git config --global user.email "info@orangebeard.io"
@@ -46,7 +50,7 @@ jobs:
         run: npm ci
       - name: Create CHANGELOG.md
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
         run: npm run create-changelog
       - name: Upload changelog as artifact
         uses: actions/upload-artifact@v2
@@ -59,6 +63,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
+        with:
+          token: ${{ secrets.GH_TOKEN }}
       - name: Download changelog for artifact
         uses: actions/download-artifact@v2
         with:
@@ -67,7 +73,7 @@ jobs:
         id: createRelease
         uses: actions/create-release@v1
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
         with:
           tag_name: v${{ needs.get-version.outputs.releaseVersion }}
           release_name: Release v${{ needs.get-version.outputs.releaseVersion }}
@@ -80,6 +86,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
+        with:
+          token: ${{ secrets.GH_TOKEN }}
       - name: Configure git
         run: |
           git config --global user.email "info@orangebeard.io"

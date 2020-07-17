@@ -1,8 +1,8 @@
 const reporterOptions = {
-  uuid: '00000000-0000-0000-0000-000000000000',
   endpoint: 'endpoint',
+  accessToken: '00000000-0000-0000-0000-000000000000',
   project: 'projectName',
-  launch: 'launcherName',
+  testset: 'launcherName',
   description: 'description',
   attributes: [
     {

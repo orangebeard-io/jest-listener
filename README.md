@@ -46,34 +46,36 @@ In your jest config section of `package.json`, add the following entry:
 {
     "jest": {
         ...
-        "reporters": [
-            "default",
-            ["@orangebeard-io/jest-listener",
-            {
-                "token": "00000000-0000-0000-0000-000000000000",
-                "endpoint": "https://your_endpoint",
-                "project": "YourProjectName",
-                "launch": "YourLauncherName",
-                "description": "YourDescription",
-                "attributes": [
-                    {
-                        "key": "YourKey",
-                        "value": "YourValue"
-                    },
-                    {
-                        "value": "YourValue"
-                    },
-                ]
-            }]
-        ],
+        "reporters": ["default","@orangebeard-io/jest-listener"],
         ...
     }
 }
 ```
 
+Create a new file named `orangebeard.json` in the project root folder, next to `package.json`. Add the followring entry:
+
+```JSON
+{
+  "endpoint": "https://company.orangebeard.app",
+  "accessToken": "00000000-0000-0000-0000-000000000000",
+  "project": "project_name",
+  "testset": "testset_NAME_EXAMPLE",
+  "description": "Your description",
+  "attributes": [
+    {
+      "key": "YourKey",
+      "value": "YourValue"
+    },
+    {
+      "value": "YourValue"
+    }
+  ]
+}
+```
+
 ### Environment properties
 
-Properties can also be set in the build, by passing them as environment variables. It's important to mention that environment variables have precedence over the `package.json` definition.
+Properties can also be set in the build, by passing them as environment variables. It's important to mention that environment variables have precedence over the `orangebeard.json` definition.
 
 ```shell
 $ export ORANGEBEARD_ENDPOINT=https://company.orangebeard.app

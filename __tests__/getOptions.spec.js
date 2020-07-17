@@ -62,10 +62,10 @@ describe('Get Options script', () => {
       expect(appOptionsObject).toEqual({});
     });
 
-    test('should return empty AppOptions object if fs.existsSync return true and type of options is not [object Object]', () => {
+    test('should return empty AppOptions object if fs.existsSync return true and file is empty', () => {
       const spyProcessCwd = jest.spyOn(process, 'cwd');
       spyProcessCwd.mockReturnValue(
-        `${processCwdValue}${path.sep}__tests__${path.sep}fixtures${path.sep}mockedPackageJsonString`,
+        `${processCwdValue}${path.sep}__tests__${path.sep}fixtures${path.sep}mockedOrangebeardEmpty`,
       );
       jest.mock('fs');
       fs.existsSync = jest.fn();
@@ -79,10 +79,10 @@ describe('Get Options script', () => {
       spyProcessCwd.mockClear();
     });
 
-    test('should return AppOptions object if fs.existsSync return true and type of options is [object Object]', () => {
+    test('should return empty AppOptions object if fs.existsSync return true and type of options is not an object', () => {
       const spyProcessCwd = jest.spyOn(process, 'cwd');
       spyProcessCwd.mockReturnValue(
-        `${processCwdValue}${path.sep}__tests__${path.sep}fixtures${path.sep}mockedPackageJsonObject`,
+        `${processCwdValue}${path.sep}__tests__${path.sep}fixtures${path.sep}mockedOrangebeardString`,
       );
       jest.mock('fs');
       fs.existsSync = jest.fn();
@@ -91,7 +91,35 @@ describe('Get Options script', () => {
       const appOptionsObject = getAppOptions(process.cwd());
 
       expect(appOptionsObject).toBeDefined();
-      expect(appOptionsObject).toEqual({ keyOne: 'valueOne' });
+      expect(appOptionsObject).toEqual({});
+
+      spyProcessCwd.mockClear();
+    });
+
+    test('should return AppOptions object if fs.existsSync return true and type of options is an object', () => {
+      const spyProcessCwd = jest.spyOn(process, 'cwd');
+      spyProcessCwd.mockReturnValue(
+        `${processCwdValue}${path.sep}__tests__${path.sep}fixtures${path.sep}mockedOrangebeardJson`,
+      );
+      jest.mock('fs');
+      fs.existsSync = jest.fn();
+      fs.existsSync.mockReturnValue(true);
+
+      const appOptionsObject = getAppOptions(process.cwd());
+
+      expect(appOptionsObject).toBeDefined();
+      expect(appOptionsObject).toEqual({
+        description: 'My awesome testrun',
+        attributes: [
+          {
+            key: 'YourKey',
+            value: 'YourValue',
+          },
+          {
+            value: 'YourValue',
+          },
+        ],
+      });
     });
   });
 

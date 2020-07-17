@@ -71,9 +71,9 @@ const getClientInitObject = (options = {}) => {
         });
 
   return {
-    token: process.env.ORANGEBEARD_ACCESSTOKEN || options.uuid,
+    token: process.env.ORANGEBEARD_ACCESSTOKEN || options.accessToken,
     endpoint: process.env.ORANGEBEARD_ENDPOINT || options.endpoint,
-    launch: process.env.ORANGEBEARD_TESTSET || options.launch || 'Unit Tests',
+    launch: process.env.ORANGEBEARD_TESTSET || options.testset || 'Unit Tests',
     project: process.env.ORANGEBEARD_PROJECT || options.project,
     rerun: options.rerun,
     rerunOf: options.rerunOf,

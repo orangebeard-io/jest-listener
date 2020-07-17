@@ -71,7 +71,7 @@ describe('index script', () => {
       expect(reporter.client.startLaunch).toHaveBeenCalledTimes(1);
 
       const launchObj = {
-        launch: options.launch,
+        launch: options.testset,
         description: options.description,
         attributes: [...options.attributes, systemAttr],
         rerun: undefined,

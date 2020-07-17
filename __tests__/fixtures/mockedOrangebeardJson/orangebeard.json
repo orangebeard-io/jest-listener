@@ -1,0 +1,12 @@
+{
+  "description": "My awesome testrun",
+  "attributes": [
+    {
+        "key": "YourKey",
+        "value": "YourValue"
+    },
+    {
+        "value": "YourValue"
+    }
+  ]
+}

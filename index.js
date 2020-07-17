@@ -21,6 +21,7 @@ const logLevels = {
 
 const promiseErrorHandler = (promise) => {
   promise.catch((err) => {
+    // istanbul ignore next
     // eslint-disable-next-line no-console
     console.error(err);
   });

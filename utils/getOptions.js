@@ -18,21 +18,25 @@ const getEnvOptions = () => {
 const getAppOptions = (pathToResolve) => {
   let traversing = true;
 
-  // Find nearest package.json by traversing up directories until /
+  // Find nearest orangebeard.json by traversing up directories until /
   while (traversing) {
     traversing = pathToResolve !== path.sep;
 
-    const pkgpath = path.join(pathToResolve, 'package.json');
+    const pkgpath = path.join(pathToResolve, 'orangebeard.json');
 
     if (fs.existsSync(pkgpath)) {
-      // eslint-disable-next-line global-require,import/no-dynamic-require
-      let options = (require(pkgpath) || {})['jest-junit'];
+      try {
+        // eslint-disable-next-line global-require,import/no-dynamic-require
+        let options = require(pkgpath);
 
-      if (Object.prototype.toString.call(options) !== '[object Object]') {
-        options = {};
+        if (typeof options !== 'object') {
+          options = {};
+        }
+
+        return options;
+      } catch (error) {
+        return {};
       }
-
-      return options;
     }
     // eslint-disable-next-line no-param-reassign
     pathToResolve = path.dirname(pathToResolve);

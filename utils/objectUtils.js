@@ -70,9 +70,14 @@ const getClientInitObject = (options = {}) => {
           };
         });
 
+  let endpoint;
+  if (process.env.ORANGEBEARD_ENDPOINT || options.endpoint) {
+    endpoint = `${process.env.ORANGEBEARD_ENDPOINT || options.endpoint}/api/v1`;
+  }
+
   return {
     token: process.env.ORANGEBEARD_ACCESSTOKEN || options.accessToken,
-    endpoint: process.env.ORANGEBEARD_ENDPOINT || options.endpoint,
+    endpoint,
     launch: process.env.ORANGEBEARD_TESTSET || options.testset || 'Unit Tests',
     project: process.env.ORANGEBEARD_PROJECT || options.project,
     rerun: options.rerun,

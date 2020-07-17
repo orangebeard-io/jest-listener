@@ -142,7 +142,7 @@ describe('Object Utils script', () => {
       };
       const expectedClientInitObject = {
         token: '00000000-0000-0000-0000-000000000000',
-        endpoint: 'https://company.orangebeard.app',
+        endpoint: 'https://company.orangebeard.app/api/v1',
         launch: 'piet_TEST_EXAMPLE',
         project: 'piet_personal',
         rerun: true,

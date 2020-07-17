@@ -59,7 +59,7 @@ const getSuiteStartObject = (suiteName, codeRef) => ({
 
 const getClientInitObject = (options = {}) => {
   const envAttributes =
-    process.env.ORANGEBEARD_ATTRIBUTES === undefined
+    process.env.ORANGEBEARD_ATTRIBUTES === undefined || !process.env.ORANGEBEARD_ATTRIBUTES
       ? undefined
       : process.env.ORANGEBEARD_ATTRIBUTES.split(',').map((item) => {
           const itemArr = item.split(':');

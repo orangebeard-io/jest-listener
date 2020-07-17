@@ -25,7 +25,7 @@ jobs:
           restore-keys: |
             node_modules-
       - name: Install Node dependencies
-        run: npm ci
+        run: npm install
       - name: Get version from package.json
         id: exposeVersion
         run: echo "::set-output name=releaseVersion::$(npm run get-version --silent)"
@@ -57,7 +57,7 @@ jobs:
           restore-keys: |
             node_modules-
       - name: Install Node dependencies
-        run: npm ci
+        run: npm install
       - name: Create CHANGELOG.md
         run: npm run create-changelog
       - name: Upload changelog as artifact
@@ -105,7 +105,7 @@ jobs:
           restore-keys: |
             node_modules-
       - name: Install Node dependencies
-        run: npm ci
+        run: npm install
       - name: Publish to NPM
         run: npm publish --access public
         env:
@@ -142,7 +142,7 @@ jobs:
           restore-keys: |
             node_modules-
       - name: Install Node dependencies
-        run: npm ci
+        run: npm install
       - name: Update version
         run: |
           npm run update-version

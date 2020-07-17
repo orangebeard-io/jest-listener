@@ -20,7 +20,7 @@ jobs:
           restore-keys: |
             node_modules-${{ runner.os }}
       - name: Install Node dependencies
-        run: npm ci
+        run: npm install
       - name: Run lint
         run: npm run lint
       - name: Run tests

@@ -133,21 +133,21 @@ describe('Object Utils script', () => {
   describe('getClientInitObject', () => {
     test('should return client init object with correct values, some parameters taken from environment variables', () => {
       process.env = {
-        ORANGEBEARD_UUID: '00000000-0000-0000-0000-000000000000',
-        ORANGEBEARD_ENDPOINT: 'https://orangebeard.io',
-        ORANGEBEARD_PROJECT_NAME: 'project name',
-        ORANGEBEARD_LAUNCH: 'launch name',
-        ORANGEBEARD_DESCRIPTION: 'description content',
+        ORANGEBEARD_ENDPOINT: 'https://company.orangebeard.app',
+        ORANGEBEARD_ACCESSTOKEN: '00000000-0000-0000-0000-000000000000',
+        ORANGEBEARD_PROJECT: 'piet_personal',
+        ORANGEBEARD_TESTSET: 'piet_TEST_EXAMPLE',
+        ORANGEBEARD_DESCRIPTION: 'My awesome testrun',
         ORANGEBEARD_ATTRIBUTES: 'attributesOne,attributesTwoKey:attributesTwoValue',
       };
       const expectedClientInitObject = {
         token: '00000000-0000-0000-0000-000000000000',
-        endpoint: 'https://orangebeard.io',
-        launch: 'launch name',
-        project: 'project name',
+        endpoint: 'https://company.orangebeard.app',
+        launch: 'piet_TEST_EXAMPLE',
+        project: 'piet_personal',
         rerun: true,
         rerunOf: '00000000-0000-0000-0000-000000000000',
-        description: 'description content',
+        description: 'My awesome testrun',
         attributes: [
           { key: null, value: 'attributesOne' },
           { key: 'attributesTwoKey', value: 'attributesTwoValue' },

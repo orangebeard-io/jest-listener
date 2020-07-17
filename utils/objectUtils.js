@@ -32,7 +32,7 @@ const getStartLaunchObject = (options = {}) => {
   const systemAttr = getSystemAttributes(options.skippedIssue);
 
   return {
-    launch: process.env.ORANGEBEARD_LAUNCH || options.launch || 'Unit Tests',
+    launch: process.env.ORANGEBEARD_TESTSET || options.launch || 'Unit Tests',
     description: process.env.ORANGEBEARD_DESCRIPTION || options.description,
     attributes: options.attributes ? options.attributes.concat(systemAttr) : systemAttr,
     rerun: options.rerun,
@@ -71,10 +71,10 @@ const getClientInitObject = (options = {}) => {
         });
 
   return {
-    token: process.env.ORANGEBEARD_UUID || options.uuid,
+    token: process.env.ORANGEBEARD_ACCESSTOKEN || options.uuid,
     endpoint: process.env.ORANGEBEARD_ENDPOINT || options.endpoint,
-    launch: process.env.ORANGEBEARD_LAUNCH || options.launch || 'Unit Tests',
-    project: process.env.ORANGEBEARD_PROJECT_NAME || options.project,
+    launch: process.env.ORANGEBEARD_TESTSET || options.launch || 'Unit Tests',
+    project: process.env.ORANGEBEARD_PROJECT || options.project,
     rerun: options.rerun,
     rerunOf: options.rerunOf,
     skippedIssue: options.skippedIssue,

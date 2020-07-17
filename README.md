@@ -76,10 +76,10 @@ In your jest config section of `package.json`, add the following entry:
 Properties can also be set in the build, by passing them as environment variables. It's important to mention that environment variables have precedence over the `package.json` definition.
 
 ```shell
-$ export ORANGEBEARD_UUID=XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX
-$ export ORANGEBEARD_ENDPOINT=https://my_endpoint
-$ export ORANGEBEARD_PROJECT_NAME=MY_AWESOME_PROJECT
-$ export ORANGEBEARD_LAUNCH=MY_COOL_LAUNCHER
-$ export ORANGEBEARD_DESCRIPTION=THIS_IS_MY_COOL_TEST_PROJECT
-$ export ORANGEBEARD_ATTRIBUTES=key:value,key:value,value
+$ export ORANGEBEARD_ENDPOINT=https://company.orangebeard.app
+$ export ORANGEBEARD_ACCESSTOKEN=XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX
+$ export ORANGEBEARD_PROJECT=piet_personal
+$ export ORANGEBEARD_TESTSET=piet_TEST_EXAMPLE
+$ export ORANGEBEARD_DESCRIPTION=My awesome testrun
+$ export ORANGEBEARD_ATTRIBUTES=key:value; value;
 ```

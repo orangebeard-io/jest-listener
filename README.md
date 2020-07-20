@@ -52,7 +52,7 @@ In your jest config section of `package.json`, add the following entry:
 }
 ```
 
-Create a new file named `orangebeard.json` in the project root folder, next to `package.json`. Add the followring entry:
+Create a new file named `orangebeard.json` in the project root folder, next to `package.json`. Add the following entry:
 
 ```JSON
 {

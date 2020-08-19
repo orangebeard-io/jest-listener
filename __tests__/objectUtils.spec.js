@@ -297,5 +297,16 @@ describe('Object Utils script', () => {
 
       expect(fullTestName).toEqual(expectedFullTestName);
     });
+
+    test('should return default when no ancestor title is set', () => {
+      const mockedTest = {
+        title: 'testTitle',
+      };
+      const expectedFullTestName = 'Suite/testTitle';
+
+      const fullTestName = getFullTestName(mockedTest);
+
+      expect(fullTestName).toEqual(expectedFullTestName);
+    });
   });
 });

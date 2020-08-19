@@ -172,6 +172,25 @@ describe('index script', () => {
       expect(spyStartTest).toHaveBeenCalledWith(testResult.testResults[0], false, testObj.path);
       expect(spyFinishTest).toHaveBeenCalledWith(testResult.testResults[0], false);
     });
+
+    test('should give a default suite name when describe is not used', () => {
+      const spyStartTest = jest.spyOn(reporter, '_startTest');
+      const spyFinishTest = jest.spyOn(reporter, '_finishTest');
+      const testResult = {
+        testResults: [
+          {
+            title: 'Title',
+            status: 'failed',
+            failureMessages: 'error message',
+          },
+        ],
+      };
+
+      reporter.onTestResult(testObj, testResult);
+
+      expect(spyStartTest).toHaveBeenCalledWith(testResult.testResults[0], false, testObj.path);
+      expect(spyFinishTest).toHaveBeenCalledWith(testResult.testResults[0], false);
+    });
   });
 
   describe('onRunComplete', () => {

@@ -65,7 +65,9 @@ class OrangebeardJestListener {
 
   // eslint-disable-next-line no-unused-vars
   onTestResult(test, testResult, aggregatedResults) {
-    const suiteName = testResult.testResults[0].ancestorTitles[0];
+    const suiteName = testResult.testResults[0].ancestorTitles
+      ? testResult.testResults[0].ancestorTitles[0]
+      : `Suite ${testResult.testResults[0].title}`;
 
     this._startSuite(suiteName, test.path);
     testResult.testResults.forEach((t) => {

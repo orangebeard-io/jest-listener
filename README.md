@@ -52,6 +52,18 @@ In your jest config section of `package.json`, add the following entry:
 }
 ```
 
+For projects with Create-React-App the above Jest config doesn't work. You should edit the test command in the `package.json` like this:
+
+```json
+...
+  "scripts": {
+    ...
+    "test": "react-scripts test --reporters=default --reporters=@orangebeard-io/jest-listener",
+    ...
+  },
+...
+```
+
 Create a new file named `orangebeard.json` in the project root folder, next to `package.json`. Add the following entry:
 
 ```JSON
@@ -85,3 +97,7 @@ $ export ORANGEBEARD_TESTSET=piet_TEST_EXAMPLE
 $ export ORANGEBEARD_DESCRIPTION=My awesome testrun
 $ export ORANGEBEARD_ATTRIBUTES=key:value; value;
 ```
+
+### Tips & tricks
+
+We would advise you to always use the Jest `describe` method around a set of tests, even if it's just one test. In that way the listener creates a suite. If you still don't want to use the `describe` method then the default suite name is `Suite` plus your test name.

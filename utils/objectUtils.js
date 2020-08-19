@@ -122,7 +122,8 @@ const getCodeRef = (testPath, title) => {
   return `${testFileDir}${separator}${testFile.base}/${title}`;
 };
 
-const getFullTestName = (test) => `${test.ancestorTitles.join('/')}/${test.title}`;
+const getFullTestName = (test) =>
+  test.ancestorTitles ? `${test.ancestorTitles.join('/')}/${test.title}` : `Suite/${test.title}`;
 
 module.exports = {
   getClientInitObject,

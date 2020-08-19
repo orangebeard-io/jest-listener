@@ -123,7 +123,9 @@ const getCodeRef = (testPath, title) => {
 };
 
 const getFullTestName = (test) =>
-  test.ancestorTitles ? `${test.ancestorTitles.join('/')}/${test.title}` : `Suite/${test.title}`;
+  test.ancestorTitles && test.ancestorTitles.length
+    ? `${test.ancestorTitles.join('/')}/${test.title}`
+    : `Suite/${test.title}`;
 
 module.exports = {
   getClientInitObject,

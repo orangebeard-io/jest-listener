@@ -26,6 +26,7 @@
     "no-throw-literal": 0,
     "no-shadow": 0,
     "no-underscore-dangle": 0,
+    "no-control-regex": 0,
     "class-methods-use-this": 0
   }
 }

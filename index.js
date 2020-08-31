@@ -152,7 +152,13 @@ class OrangebeardJestListener {
     const status = testItemStatuses.FAILED;
     const finishTestObj = { status, retry: isRetried };
 
-    this._sendLog(failureMessage);
+    // Remove ANSI caracters from the logs. This is caused by the Jest colors in the output.
+    const formattedFailureMessage = failureMessage.replace(
+      /[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><]/g,
+      '',
+    );
+
+    this._sendLog(formattedFailureMessage);
 
     const { promise } = this.client.finishTestItem(this.tempTestId, finishTestObj);
 

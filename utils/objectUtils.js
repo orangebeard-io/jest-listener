@@ -104,6 +104,7 @@ const getClientInitObject = (options = {}) => {
     attributes: envAttributes || options.attributes,
     mode: options.mode,
     debug: options.debug,
+    disableGA: true,
   };
 };
 

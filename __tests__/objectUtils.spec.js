@@ -171,6 +171,7 @@ describe('Object Utils script', () => {
         ],
         mode: 'DEBUG',
         debug: true,
+        disableGA: true,
       };
       const options = {
         endpoint: 'endpoint',
@@ -195,7 +196,7 @@ describe('Object Utils script', () => {
       const clientInitObject = getClientInitObject();
 
       expect(clientInitObject).toBeDefined();
-      expect(clientInitObject).toEqual(expectedClientInitObject);
+      expect(clientInitObject).toMatchObject(expectedClientInitObject);
     });
   });
 

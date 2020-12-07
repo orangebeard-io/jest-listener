@@ -15,7 +15,7 @@
  *  limitations under the License.
  */
 
-const OrangebeardClient = require('@reportportal/client-javascript');
+const OrangebeardClient = require('@orangebeard-io/javascript-client');
 const getOptions = require('./utils/getOptions');
 const {
   getClientInitObject,

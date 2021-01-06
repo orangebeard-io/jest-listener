@@ -30,7 +30,7 @@
   "homepage": "https://github.com/orangebeard-io/jest-listener#readme",
   "dependencies": {
     "@jest/reporters": "26.6.2",
-    "@orangebeard-io/javascript-client": "1.0.1",
+    "@orangebeard-io/javascript-client": "1.0.2",
     "jest-cli": "26.6.3"
   },
   "devDependencies": {

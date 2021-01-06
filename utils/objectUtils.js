@@ -89,7 +89,7 @@ const getClientInitObject = (options = {}) => {
 
   let endpoint;
   if (process.env.ORANGEBEARD_ENDPOINT || options.endpoint) {
-    endpoint = `${process.env.ORANGEBEARD_ENDPOINT || options.endpoint}/api/v1`;
+    endpoint = `${process.env.ORANGEBEARD_ENDPOINT || options.endpoint}/listener/v1`;
   }
 
   return {

@@ -21,7 +21,7 @@ const pjson = require('../package.json');
 
 const PJSON_VERSION = pjson.version;
 const PJSON_NAME = pjson.name;
-const entityType = { SUITE: 'SUITE', TEST: 'STEP' };
+const entityType = { SUITE: 'SUITE', TEST: 'TEST', STEP: 'STEP' };
 
 const getSystemAttributes = (skippedIssue) => {
   const systemAttr = [
@@ -60,11 +60,22 @@ const getStartLaunchObject = (options = {}) => {
   };
 };
 
-const getTestStartObject = (testTitle, isRetried, codeRef) => ({
+const getStepStartObject = (stepTitle, isRetried, codeRef) =>
+  Object.assign(
+    {
+      type: entityType.STEP,
+      name: stepTitle,
+      codeRef,
+      startTime: new Date().valueOf(),
+    },
+    { retry: isRetried },
+  );
+
+const getTestStartObject = (testTitle, codeRef) => ({
   type: entityType.TEST,
   name: testTitle,
   codeRef,
-  retry: isRetried,
+  startTime: new Date().valueOf(),
 });
 
 const getSuiteStartObject = (suiteName, codeRef) => ({
@@ -104,7 +115,7 @@ const getClientInitObject = (options = {}) => {
     attributes: envAttributes || options.attributes,
     mode: options.mode,
     debug: options.debug,
-    disableGA: true,
+    restClientConfig: options.restClientConfig,
   };
 };
 
@@ -123,18 +134,19 @@ const getCodeRef = (testPath, title) => {
   return `${testFileDir}${separator}${testFile.base}/${title}`;
 };
 
-const getFullTestName = (test) =>
-  test.ancestorTitles && test.ancestorTitles.length
-    ? `${test.ancestorTitles.join('/')}/${test.title}`
-    : `Suite/${test.title}`;
+const getFullTestName = (test) => `${test.ancestorTitles.join('/')}`;
+
+const getFullStepName = (test) => `${test.ancestorTitles.join('/')}/${test.title}`;
 
 module.exports = {
   getClientInitObject,
   getStartLaunchObject,
   getSuiteStartObject,
   getTestStartObject,
+  getStepStartObject,
   getAgentInfo,
   getCodeRef,
   getFullTestName,
+  getFullStepName,
   getSystemAttributes,
 };

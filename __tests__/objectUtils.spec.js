@@ -22,9 +22,11 @@ const {
   getStartLaunchObject,
   getSuiteStartObject,
   getTestStartObject,
+  getStepStartObject,
   getAgentInfo,
   getCodeRef,
   getFullTestName,
+  getFullStepName,
   getSystemAttributes,
 } = require('../utils/objectUtils');
 const pjson = require('../package.json');
@@ -117,15 +119,31 @@ describe('Object Utils script', () => {
     });
   });
 
+  describe('getStepStartObject', () => {
+    test('should return step start object with correct values', () => {
+      const expectedStepStartObject = {
+        type: 'STEP',
+        name: 'step title',
+        retry: true,
+        startTime: new Date().valueOf(),
+      };
+
+      const stepStartObject = getStepStartObject('step title', true);
+
+      expect(stepStartObject).toBeDefined();
+      expect(stepStartObject).toEqual(expectedStepStartObject);
+    });
+  });
+
   describe('getTestStartObject', () => {
     test('should return test start object with correct values', () => {
       const expectedTestStartObject = {
-        type: 'STEP',
+        type: 'TEST',
         name: 'test title',
-        retry: true,
+        startTime: new Date().valueOf(),
       };
 
-      const testStartObject = getTestStartObject('test title', true);
+      const testStartObject = getTestStartObject('test title');
 
       expect(testStartObject).toBeDefined();
       expect(testStartObject).toEqual(expectedTestStartObject);
@@ -171,7 +189,6 @@ describe('Object Utils script', () => {
         ],
         mode: 'DEBUG',
         debug: true,
-        disableGA: true,
       };
       const options = {
         endpoint: 'endpoint',
@@ -289,8 +306,7 @@ describe('Object Utils script', () => {
   describe('getFullTestName', () => {
     test('should return correct full test name', () => {
       const mockedTest = {
-        title: 'testTitle',
-        ancestorTitles: ['rootDescribe', 'parentDescribe'],
+        ancestorTitles: ['rootDescribe', 'parentDescribe', 'testTitle'],
       };
       const expectedFullTestName = 'rootDescribe/parentDescribe/testTitle';
 
@@ -298,16 +314,19 @@ describe('Object Utils script', () => {
 
       expect(fullTestName).toEqual(expectedFullTestName);
     });
+  });
 
-    test('should return default when no ancestor title is set', () => {
+  describe('getFullStepName', () => {
+    test('should return correct full step name', () => {
       const mockedTest = {
-        title: 'testTitle',
+        title: 'stepTitle',
+        ancestorTitles: ['rootDescribe', 'parentDescribe'],
       };
-      const expectedFullTestName = 'Suite/testTitle';
+      const expectedFullStepName = 'rootDescribe/parentDescribe/stepTitle';
 
-      const fullTestName = getFullTestName(mockedTest);
+      const fullStepName = getFullStepName(mockedTest);
 
-      expect(fullTestName).toEqual(expectedFullTestName);
+      expect(fullStepName).toEqual(expectedFullStepName);
     });
   });
 });

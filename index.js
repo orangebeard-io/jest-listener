@@ -16,6 +16,7 @@
  */
 
 const OrangebeardClient = require('@orangebeard-io/javascript-client');
+const stripAnsi = require('strip-ansi');
 const getOptions = require('./utils/getOptions');
 const {
   getClientInitObject,
@@ -32,7 +33,6 @@ const {
 const testItemStatuses = { PASSED: 'passed', FAILED: 'failed', SKIPPED: 'pending' };
 const logLevels = {
   ERROR: 'error',
-  TRACE: 'trace',
   DEBUG: 'debug',
   INFO: 'info',
   WARN: 'warn',
@@ -47,6 +47,12 @@ const promiseErrorHandler = (promise) => {
 };
 
 class OrangebeardJestListener {
+  /**
+   * Constructor for the reporter
+   *
+   * @param {Object} _globalConfig - Jest configuration object
+   * @param {Object} _options - Options object defined in jest config
+   */
   constructor(globalConfig, options) {
     const agentInfo = getAgentInfo();
     this.reportOptions = getClientInitObject(getOptions.options(options));
@@ -56,6 +62,13 @@ class OrangebeardJestListener {
     this.tempStepId = null;
   }
 
+  /**
+   * Hook to process the test run before running the tests, the only real data
+   * available at this time is the number of test suites about to be executed
+   *
+   * @param _results - Results for the test run, but only `numTotalTestSuites` is of use
+   * @param _options - Run configuration
+   */
   // eslint-disable-next-line no-unused-vars
   onRunStart() {
     const startLaunchObj = getStartLaunchObject(this.reportOptions);
@@ -65,25 +78,42 @@ class OrangebeardJestListener {
     promiseErrorHandler(promise);
   }
 
+  /**
+   * Hook to process the test run before starting the test suite
+   * This will be called many times during the test run
+   *
+   * @param _test - The test this run
+   */
   // eslint-disable-next-line no-unused-vars
-  onTestResult(test, testResult) {
-    testResult.testResults.forEach((t) => {
-      this._startSuite(t.ancestorTitles[0], test.path);
-      if (t.ancestorTitles.length !== 1) {
-        this._startTest(t, test.path);
+  onTestStart() {}
+
+  /**
+   * Hook to process the test run results after a test suite has been executed
+   * This will be called many times during the test run
+   *
+   * @param _test - The test last run
+   * @param _testResults - Results for the test suite just executed
+   * @param _aggregatedResult - Results for the test run at the point in time of the test suite being executed
+   */
+  // eslint-disable-next-line no-unused-vars
+  onTestResult(_test, _testResult) {
+    _testResult.testResults.forEach((result) => {
+      this._startSuite(result.ancestorTitles[0], _test.path);
+      if (result.ancestorTitles.length !== 1) {
+        this._startTest(result, _test.path);
       }
 
-      if (!t.invocations) {
-        this._startStep(t, false, test.path);
-        this._finishStep(t, false);
+      if (!result.invocations) {
+        this._startStep(result, false, _test.path);
+        this._finishStep(result, false);
         return;
       }
 
-      for (let i = 0; i < t.invocations; i += 1) {
-        const isRetried = t.invocations !== 1;
+      for (let i = 0; i < result.invocations; i += 1) {
+        const isRetried = result.invocations !== 1;
 
-        this._startStep(t, isRetried, test.path);
-        this._finishStep(t, isRetried);
+        this._startStep(result, isRetried, _test.path);
+        this._finishStep(result, isRetried);
       }
     });
 
@@ -95,6 +125,13 @@ class OrangebeardJestListener {
     });
   }
 
+  /**
+   * Hook to process the test run results after all the test suites have been
+   * executed
+   *
+   * @param {string} _contexts - The Contexts of the test run
+   * @param {JestTestRunResult} _results - Results from the test run
+   */
   // eslint-disable-next-line no-unused-vars
   onRunComplete() {
     const { promise } = this.client.finishLaunch(this.tempLaunchId);
@@ -184,10 +221,7 @@ class OrangebeardJestListener {
     const finishTestObj = { status, retry: isRetried };
 
     // Remove ANSI caracters from the logs. This is caused by the Jest colors in the output.
-    const formattedFailureMessage = failureMessage.replace(
-      /[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><]/g,
-      '',
-    );
+    const formattedFailureMessage = stripAnsi(failureMessage);
 
     this._sendLog(formattedFailureMessage);
 

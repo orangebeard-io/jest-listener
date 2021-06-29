@@ -29,9 +29,10 @@
   },
   "homepage": "https://github.com/orangebeard-io/jest-listener#readme",
   "dependencies": {
-    "@jest/reporters": "27.0.5",
-    "@orangebeard-io/javascript-client": "1.0.6",
-    "jest-cli": "27.0.5"
+    "@jest/reporters": "27.0.6",
+    "@orangebeard-io/javascript-client": "1.0.7",
+    "jest-cli": "27.0.6",
+    "strip-ansi": "7.0.0"
   },
   "devDependencies": {
     "auto-changelog": "2.3.0",
@@ -40,7 +41,7 @@
     "eslint-config-prettier": "8.3.0",
     "eslint-plugin-import": "2.23.4",
     "eslint-plugin-prettier": "3.4.0",
-    "jest": "27.0.5",
+    "jest": "27.0.6",
     "prettier": "2.3.2",
     "release-it": "14.10.0"
   }

@@ -16,7 +16,6 @@
  */
 
 const OrangebeardClient = require('@orangebeard-io/javascript-client');
-const stripAnsi = require('strip-ansi');
 const getOptions = require('./utils/getOptions');
 const {
   getClientInitObject,
@@ -221,7 +220,10 @@ class OrangebeardJestListener {
     const finishTestObj = { status, retry: isRetried };
 
     // Remove ANSI caracters from the logs. This is caused by the Jest colors in the output.
-    const formattedFailureMessage = stripAnsi(failureMessage);
+    const formattedFailureMessage = failureMessage.replace(
+      /[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><]/g,
+      '',
+    );
 
     this._sendLog(formattedFailureMessage);
 

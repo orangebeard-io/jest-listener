@@ -81,7 +81,11 @@ Create a new file named `orangebeard.json` in the project root folder, next to `
     {
       "value": "YourValue"
     }
-  ]
+  ],
+  "listenerMode": "DEFAULT",
+  "restClientConfig": {
+    "timeout": 0
+  }
 }
 ```
 

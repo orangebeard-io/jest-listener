@@ -29,7 +29,7 @@ const {
   getFullStepName,
 } = require('./utils/objectUtils');
 
-const testItemStatuses = { PASSED: 'passed', FAILED: 'failed', SKIPPED: 'pending' };
+const testItemStatuses = { PASSED: 'passed', FAILED: 'failed', SKIPPED: 'skipped' };
 const logLevels = {
   ERROR: 'error',
   DEBUG: 'debug',
@@ -39,7 +39,6 @@ const logLevels = {
 
 const promiseErrorHandler = (promise) => {
   promise.catch((err) => {
-    // istanbul ignore next
     // eslint-disable-next-line no-console
     console.error(err);
   });
@@ -105,16 +104,24 @@ class OrangebeardJestListener {
       }
 
       if (!result.invocations) {
-        this._startStep(result, false, _test.path);
-        this._finishStep(result, false);
+        if (this.reportOptions.listenerMode === 'FAST') {
+          this._startAndFinishStep(result, false, _test.path);
+        } else {
+          this._startStep(result, false, _test.path);
+          this._finishStep(result, false);
+        }
         return;
       }
 
       for (let i = 0; i < result.invocations; i += 1) {
         const isRetried = result.invocations !== 1;
 
-        this._startStep(result, isRetried, _test.path);
-        this._finishStep(result, isRetried);
+        if (this.reportOptions.listenerMode === 'FAST') {
+          this._startAndFinishStep(result, isRetried, _test.path);
+        } else {
+          this._startStep(result, isRetried, _test.path);
+          this._finishStep(result, isRetried);
+        }
       }
     });
 
@@ -142,6 +149,12 @@ class OrangebeardJestListener {
     await promise;
   }
 
+  /**
+   * Start a new suite
+   *
+   * @param {string} suiteName - The name of the suite
+   * @param {string} path - Location of the suite
+   */
   _startSuite(suiteName, path) {
     if (this.tempSuiteIds.get(suiteName)) {
       return;
@@ -157,6 +170,12 @@ class OrangebeardJestListener {
     this.promises.push(promise);
   }
 
+  /**
+   * Start a new test
+   *
+   * @param {Object} test - Jest test object
+   * @param {string} testPath - Location of the test
+   */
   _startTest(test, testPath) {
     if (this.tempTestIds.get(test.ancestorTitles.join('/'))) {
       return;
@@ -182,6 +201,13 @@ class OrangebeardJestListener {
     this.promises.push(promise);
   }
 
+  /**
+   * Start a new step
+   *
+   * @param {Object} test - Jest test object
+   * @param {boolean} isRetried - Is a retry or not
+   * @param {string} testPath - Location of the step
+   */
   _startStep(test, isRetried, testPath) {
     const tempSuiteId = this.tempSuiteIds.get(test.ancestorTitles[0]);
     const fullStepName = getFullStepName(test);
@@ -199,48 +225,136 @@ class OrangebeardJestListener {
     this.promises.push(promise);
   }
 
+  /**
+   * Finish a step
+   *
+   * @param {Object} test - Jest test object
+   * @param {boolean} isRetried - Is a retry or not
+   */
   _finishStep(test, isRetried) {
     const errorMsg = test.failureMessages[0];
+    let finishTestObj;
 
     switch (test.status) {
       case testItemStatuses.PASSED:
-        this._finishPassedStep(isRetried);
+        finishTestObj = this._finishPassedStep(isRetried);
         break;
       case testItemStatuses.FAILED:
-        this._finishFailedStep(errorMsg, isRetried);
+        finishTestObj = this._finishFailedStep(errorMsg, isRetried);
         break;
       default:
-        this._finishSkippedStep(isRetried);
+        finishTestObj = this._finishSkippedStep(isRetried);
     }
+
+    this._sendFinishTestObj(this.tempStepId, finishTestObj);
   }
 
+  /**
+   * Create a finish passed step object
+   *
+   * @param {boolean} isRetried - Is a retry or not
+   * @returns {Object}
+   */
   _finishPassedStep(isRetried) {
     const status = testItemStatuses.PASSED;
-    const finishTestObj = { status, retry: isRetried };
-    const { promise } = this.client.finishTestItem(this.tempStepId, finishTestObj);
-
-    promiseErrorHandler(promise);
-    this.promises.push(promise);
+    return { status, retry: isRetried };
   }
 
-  _finishFailedStep(failureMessage, isRetried) {
+  /**
+   * Create a finish failed step object
+   *
+   * @param {string} failureMessage - The jest debug message output
+   * @param {boolean} isRetried - Is a retry or not
+   * @param {boolean} [sendLog = true] - Should send a log
+   * @returns {Object}
+   */
+  _finishFailedStep(failureMessage, isRetried, sendLog = true) {
     const status = testItemStatuses.FAILED;
-    const finishTestObj = { status, retry: isRetried };
 
-    // Remove ANSI caracters from the logs. This is caused by the Jest colors in the output.
-    const formattedFailureMessage = failureMessage.replace(
-      /[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><]/g,
-      '',
+    if (sendLog) {
+      // Remove ANSI caracters from the logs. This is caused by the Jest colors in the output.
+      const formattedFailureMessage = failureMessage.replace(
+        /[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><]/g,
+        '',
+      );
+      this._sendLog(formattedFailureMessage);
+    }
+
+    return { status, retry: isRetried };
+  }
+
+  /**
+   * Create a finish skipped step object
+   *
+   * @param {boolean} isRetried - Is a retry or not
+   * @returns {Object}
+   */
+  _finishSkippedStep(isRetried) {
+    const status = testItemStatuses.SKIPPED;
+    const issue = this.reportOptions.skippedIssue === false ? { issueType: 'NOT_ISSUE' } : null;
+    return Object.assign(
+      {
+        status,
+        retry: isRetried,
+      },
+      issue && { issue },
     );
+  }
 
-    this._sendLog(formattedFailureMessage);
+  /**
+   * Start and finish a step with only 1 call
+   *
+   * @param {Object} test - Jest test object
+   * @param {boolean} isRetried - Is a retry or not
+   * @param {string} testPath - Location of the step
+   */
+  _startAndFinishStep(test, isRetried, testPath) {
+    const tempSuiteId = this.tempSuiteIds.get(test.ancestorTitles[0]);
+    const fullStepName = getFullStepName(test);
+    const codeRef = getCodeRef(testPath, fullStepName);
+    const stepStartObj = getStepStartObject(test.title, isRetried, codeRef);
+    const parentId = this.tempTestIds.get(test.ancestorTitles.join('/')) || tempSuiteId;
+    let finishTestObj;
 
-    const { promise } = this.client.finishTestItem(this.tempStepId, finishTestObj);
+    switch (test.status) {
+      case testItemStatuses.PASSED:
+        finishTestObj = this._finishPassedStep(isRetried);
+        break;
+      case testItemStatuses.FAILED:
+        finishTestObj = this._finishFailedStep(test.failureMessages[0], isRetried, false);
+        break;
+      default:
+        finishTestObj = this._finishSkippedStep(isRetried);
+    }
+
+    const { promise } = this.client.startAndFinishTestItem(
+      stepStartObj,
+      this.tempLaunchId,
+      parentId,
+      finishTestObj,
+    );
+    promiseErrorHandler(promise);
+    this.promises.push(promise);
+  }
+
+  /**
+   * Send the finish test object to the client
+   *
+   * @param {string} tempStepId - The id to identify the step
+   * @param {Object} finishTestObj - The data that will be send to the client
+   */
+  _sendFinishTestObj(tempStepId, finishTestObj) {
+    const { promise } = this.client.finishTestItem(tempStepId, finishTestObj);
 
     promiseErrorHandler(promise);
     this.promises.push(promise);
   }
 
+  /**
+   * Send a log message to the client
+   *
+   * @param {string} message - The log message
+   */
   _sendLog(message) {
     const logObject = {
       message,
@@ -252,22 +366,12 @@ class OrangebeardJestListener {
     this.promises.push(promise);
   }
 
-  _finishSkippedStep(isRetried) {
-    const status = 'skipped';
-    const issue = this.reportOptions.skippedIssue === false ? { issueType: 'NOT_ISSUE' } : null;
-    const finishTestObj = Object.assign(
-      {
-        status,
-        retry: isRetried,
-      },
-      issue && { issue },
-    );
-    const { promise } = this.client.finishTestItem(this.tempStepId, finishTestObj);
-
-    promiseErrorHandler(promise);
-    this.promises.push(promise);
-  }
-
+  /**
+   * Finish a test
+   *
+   * @param {string} tempTestId - The id to identify the test
+   * @param {string} key - The temp test id
+   */
   _finishTest(tempTestId, key) {
     if (!tempTestId) return;
 
@@ -278,6 +382,12 @@ class OrangebeardJestListener {
     this.promises.push(promise);
   }
 
+  /**
+   * Finish a suite
+   *
+   * @param {string} tempSuiteId - The id to identify the suite
+   * @param {string} key - The temp suite id
+   */
   _finishSuite(tempSuiteId, key) {
     if (!tempSuiteId) return;
 

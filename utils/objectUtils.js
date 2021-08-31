@@ -116,6 +116,7 @@ const getClientInitObject = (options = {}) => {
     mode: options.mode,
     debug: options.debug,
     restClientConfig: options.restClientConfig,
+    listenerMode: options.listenerMode || 'DEFAULT',
   };
 };
 

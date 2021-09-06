@@ -17,11 +17,11 @@
 
 /* eslint-disable no-undef */
 const path = require('path');
-const { getOptions, RPClient } = require('./mocks/orangebeard-client.mock');
+const { getOptions, OBClient } = require('./mocks/orangebeard-client.mock');
 const OrangebeardJestListener = require('../index');
 const pjson = require('../package.json');
 
-const testItemStatuses = { PASSED: 'passed', FAILED: 'failed', SKIPPED: 'pending' };
+const testItemStatuses = { PASSED: 'passed', FAILED: 'failed', SKIPPED: 'skipped' };
 const GLOBAL_CONFIG = {};
 const options = getOptions();
 const currentDate = new Date();
@@ -35,7 +35,7 @@ const testResult = {
   testResults: [
     {
       title: 'Title',
-      status: 'failed',
+      status: testItemStatuses.FAILED,
       ancestorTitles: ['Suite name', 'Test name'],
       failureMessages: 'error message',
       invocations: 1,
@@ -51,7 +51,7 @@ describe('index script', () => {
 
   beforeAll(() => {
     reporter = new OrangebeardJestListener(GLOBAL_CONFIG, options);
-    reporter.client = new RPClient();
+    reporter.client = new OBClient();
   });
 
   beforeEach(() => {
@@ -112,6 +112,7 @@ describe('index script', () => {
         const spyFinishTest = jest.spyOn(reporter, '_finishTest');
         const spyFinishSuite = jest.spyOn(reporter, '_finishSuite');
         const spyFinishStep = jest.spyOn(reporter, '_finishStep');
+        const spyStartAndFinishStep = jest.spyOn(reporter, '_startAndFinishStep');
         reporter.tempTestIds = new Map([['tempTestId', '1234']]);
         reporter.tempSuiteIds = new Map([['tempSuiteId', '4321']]);
 
@@ -123,6 +124,7 @@ describe('index script', () => {
         );
         expect(spyStartTest).toHaveBeenCalledWith(testResult.testResults[0], testObj.path);
         expect(spyStartStep).toHaveBeenCalledWith(testResult.testResults[0], false, testObj.path);
+        expect(spyStartAndFinishStep).not.toHaveBeenCalled();
         expect(spyFinishStep).toHaveBeenCalledWith(testResult.testResults[0], false);
         expect(spyFinishTest).toHaveBeenCalledWith('1234', 'tempTestId');
         expect(spyFinishSuite).toHaveBeenCalledWith('4321', 'tempSuiteId');
@@ -155,7 +157,7 @@ describe('index script', () => {
           testResults: [
             {
               title: 'Title',
-              status: 'failed',
+              status: testItemStatuses.FAILED,
               ancestorTitles: ['Suite name', 'Test name'],
               failureMessages: 'error message',
               invocations: 2,
@@ -182,7 +184,7 @@ describe('index script', () => {
           testResults: [
             {
               title: 'Title',
-              status: 'failed',
+              status: testItemStatuses.FAILED,
               ancestorTitles: ['Suite name', 'Test name'],
               failureMessages: 'error message',
             },
@@ -202,7 +204,7 @@ describe('index script', () => {
         testResults: [
           {
             title: 'Title',
-            status: 'failed',
+            status: testItemStatuses.FAILED,
             ancestorTitles: ['Suite name'],
             failureMessages: 'error message',
           },
@@ -212,6 +214,50 @@ describe('index script', () => {
       reporter.onTestResult(testObj, testResult);
 
       expect(spyStartTest).not.toHaveBeenCalled();
+    });
+
+    test('startStep, finishStep should not be called when the listener mode is FAST', () => {
+      const spyStartStep = jest.spyOn(reporter, '_startStep');
+      const spyFinishStep = jest.spyOn(reporter, '_finishStep');
+      const spyStartAndFinishStep = jest.spyOn(reporter, '_startAndFinishStep');
+
+      reporter.reportOptions.listenerMode = 'FAST';
+      reporter.onTestResult(testObj, testResult);
+
+      expect(spyStartStep).not.toHaveBeenCalled();
+      expect(spyFinishStep).not.toHaveBeenCalled();
+      expect(spyStartAndFinishStep).toHaveBeenCalledWith(
+        testResult.testResults[0],
+        false,
+        testObj.path,
+      );
+    });
+
+    test('startStep, finishStep should not be called when the listener mode is FAST and no invocations', () => {
+      const spyStartStep = jest.spyOn(reporter, '_startStep');
+      const spyFinishStep = jest.spyOn(reporter, '_finishStep');
+      const spyStartAndFinishStep = jest.spyOn(reporter, '_startAndFinishStep');
+      const testResult = {
+        testResults: [
+          {
+            title: 'Title',
+            status: testItemStatuses.FAILED,
+            ancestorTitles: ['Suite name', 'Test name'],
+            failureMessages: 'error message',
+          },
+        ],
+      };
+
+      reporter.reportOptions.listenerMode = 'FAST';
+      reporter.onTestResult(testObj, testResult);
+
+      expect(spyStartStep).not.toHaveBeenCalled();
+      expect(spyFinishStep).not.toHaveBeenCalled();
+      expect(spyStartAndFinishStep).toHaveBeenCalledWith(
+        testResult.testResults[0],
+        false,
+        testObj.path,
+      );
     });
   });
 
@@ -341,6 +387,97 @@ describe('index script', () => {
     });
   });
 
+  describe('_startAndFinishStep', () => {
+    test('startAndFinishTestItem should be called with parameters with tempTestId, tempStepId should be defined', () => {
+      jest.spyOn(process, 'cwd').mockImplementation(() => `C:${path.sep}testProject`);
+      const expectedStartStepItemParameter = {
+        type: 'STEP',
+        name: 'Step',
+        codeRef: 'example.js/Suite/Test/Step',
+        retry: true,
+        startTime: new Date().valueOf(),
+      };
+      reporter.tempLaunchId = 'tempLaunchId';
+      reporter.tempTestIds = new Map([['Suite/Test', 'tempTestId']]);
+
+      reporter._startAndFinishStep(
+        { title: 'Step', ancestorTitles: ['Suite', 'Test'] },
+        true,
+        testObj.path,
+      );
+
+      expect(reporter.client.startAndFinishTestItem).toHaveBeenCalledWith(
+        expectedStartStepItemParameter,
+        'tempLaunchId',
+        'tempTestId',
+        { retry: true, status: testItemStatuses.SKIPPED },
+      );
+    });
+
+    test('startAndFinishTestItem should be called with parameters with tempSuiteId, tempStepId should be defined', () => {
+      jest.spyOn(process, 'cwd').mockImplementation(() => `C:${path.sep}testProject`);
+      const expectedStartStepItemParameter = {
+        type: 'STEP',
+        name: 'Step',
+        codeRef: 'example.js/Suite/Step',
+        retry: true,
+        startTime: new Date().valueOf(),
+      };
+      reporter.tempLaunchId = 'tempLaunchId';
+      reporter.tempSuiteIds = new Map([['Suite', 'tempSuiteId']]);
+
+      reporter._startAndFinishStep(
+        { title: 'Step', ancestorTitles: ['Suite'] },
+        true,
+        testObj.path,
+      );
+
+      expect(reporter.client.startAndFinishTestItem).toHaveBeenCalledWith(
+        expectedStartStepItemParameter,
+        'tempLaunchId',
+        'tempSuiteId',
+        { retry: true, status: testItemStatuses.SKIPPED },
+      );
+    });
+    test('startAndFinishTestItem should be called with parameters with tempSuiteId, tempStepId, status should be defined', () => {
+      jest.spyOn(process, 'cwd').mockImplementation(() => `C:${path.sep}testProject`);
+      const expectedStartStepItemParameter = {
+        type: 'STEP',
+        name: 'Step',
+        codeRef: 'example.js/Suite/Step',
+        retry: false,
+        startTime: new Date().valueOf(),
+      };
+      reporter.tempLaunchId = 'tempLaunchId';
+      reporter.tempSuiteIds = new Map([['Suite', 'tempSuiteId']]);
+
+      reporter._startAndFinishStep(
+        { title: 'Step', ancestorTitles: ['Suite'], status: testItemStatuses.PASSED },
+        false,
+        testObj.path,
+      );
+
+      expect(reporter.client.startAndFinishTestItem).toHaveBeenCalledWith(
+        expectedStartStepItemParameter,
+        'tempLaunchId',
+        'tempSuiteId',
+        { retry: false, status: testItemStatuses.PASSED },
+      );
+    });
+  });
+
+  describe('_sendFinishTestObj', () => {
+    test('should catch an error', async () => {
+      const spyConsoleError = jest.spyOn(console, 'error').mockImplementation(() => {});
+      const errorMessage = 'Error123';
+      reporter.client.finishTestItem = jest
+        .fn()
+        .mockImplementation(() => ({ tempId: 1, promise: Promise.reject(errorMessage) }));
+      await reporter._sendFinishTestObj();
+      await expect(spyConsoleError).toHaveBeenCalledWith(errorMessage);
+    });
+  });
+
   describe('_sendLog', () => {
     test('sendLog should be called with parameters', () => {
       const expectedLogObjectParameter = {
@@ -435,71 +572,72 @@ describe('index script', () => {
 
   describe('_finishPassedStep', () => {
     test('finishTestItem should be called with parameters', () => {
-      const expectedFinishTestItemParameter = {
-        status: 'passed',
+      const expectedOutput = {
+        status: testItemStatuses.PASSED,
         retry: false,
       };
       reporter.tempStepId = 'tempStepId';
 
-      reporter._finishPassedStep(false);
+      const output = reporter._finishPassedStep(false);
 
-      expect(reporter.client.finishTestItem).toHaveBeenCalledWith(
-        'tempStepId',
-        expectedFinishTestItemParameter,
-      );
+      expect(output).toEqual(expectedOutput);
     });
   });
 
   describe('_finishFailedStep', () => {
     test('_sendLog should be called with failure message, finishTestItem should be called with parameters', () => {
       const spySendLog = jest.spyOn(reporter, '_sendLog');
-      const expectedFinishTestItemParameter = {
-        status: 'failed',
+      const expectedOutput = {
+        status: testItemStatuses.FAILED,
         retry: false,
       };
       reporter.tempStepId = 'tempStepId';
 
-      reporter._finishFailedStep('error message', false);
+      const output = reporter._finishFailedStep('error message', false);
 
       expect(spySendLog).toHaveBeenCalledWith('error message');
-      expect(reporter.client.finishTestItem).toHaveBeenCalledWith(
-        'tempStepId',
-        expectedFinishTestItemParameter,
-      );
+      expect(output).toEqual(expectedOutput);
+    });
+    test('finishTestItem should be called with parameters and no log should be send', () => {
+      const spySendLog = jest.spyOn(reporter, '_sendLog');
+      const expectedOutput = {
+        status: testItemStatuses.FAILED,
+        retry: false,
+      };
+      reporter.tempStepId = 'tempStepId';
+
+      const output = reporter._finishFailedStep('error message', false, false);
+
+      expect(spySendLog).not.toHaveBeenCalled();
+      expect(output).toEqual(expectedOutput);
     });
   });
 
   describe('_finishSkippedStep', () => {
     test('finishTestItem should be called with parameters', () => {
-      const expectedFinishTestItemParameter = {
-        status: 'skipped',
+      const expectedOutput = {
+        status: testItemStatuses.SKIPPED,
         retry: false,
       };
       reporter.tempStepId = 'tempStepId';
 
-      reporter._finishSkippedStep(false);
+      const output = reporter._finishSkippedStep(false);
 
-      expect(reporter.client.finishTestItem).toHaveBeenCalledWith(
-        'tempStepId',
-        expectedFinishTestItemParameter,
-      );
+      expect(output).toEqual(expectedOutput);
     });
 
     test('finishTestItem should be called with issue parameter if skippedIssue is false', () => {
-      const expectedFinishTestItemParameter = {
-        status: 'skipped',
+      const expectedOutput = {
+        status: testItemStatuses.SKIPPED,
         retry: false,
         issue: { issueType: 'NOT_ISSUE' },
       };
       reporter.tempStepId = 'tempStepId';
       reporter.reportOptions.skippedIssue = false;
 
-      reporter._finishSkippedStep(false);
+      const output = reporter._finishSkippedStep(false);
 
-      expect(reporter.client.finishTestItem).toHaveBeenCalledWith(
-        'tempStepId',
-        expectedFinishTestItemParameter,
-      );
+      expect(output).toEqual(expectedOutput);
     });
   });
 });

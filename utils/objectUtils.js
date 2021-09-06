@@ -114,8 +114,9 @@ const getClientInitObject = (options = {}) => {
     description: process.env.ORANGEBEARD_DESCRIPTION || options.description,
     attributes: envAttributes || options.attributes,
     mode: options.mode,
-    debug: options.debug,
+    debug: options.debug || options.mode === 'DEBUG',
     restClientConfig: options.restClientConfig,
+    listenerMode: options.listenerMode || 'DEFAULT',
   };
 };
 

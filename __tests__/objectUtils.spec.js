@@ -189,6 +189,7 @@ describe('Object Utils script', () => {
         ],
         mode: 'DEBUG',
         debug: true,
+        listenerMode: 'DEFAULT',
       };
       const options = {
         endpoint: 'endpoint',

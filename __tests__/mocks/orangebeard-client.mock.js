@@ -32,12 +32,13 @@ const reporterOptions = {
   ],
 };
 
-class RPClient {
+class OBClient {
   constructor() {
     this.startLaunch = this.mockStartLaunch();
     this.finishLaunch = this.mockFinishLaunch();
     this.startTestItem = this.mockStartTestItem();
     this.finishTestItem = this.mockFinishTestItem();
+    this.startAndFinishTestItem = this.mockStartAndFinishTestItem();
     this.sendLog = this.mockSendLog();
   }
 
@@ -69,6 +70,13 @@ class RPClient {
     });
   }
 
+  mockStartAndFinishTestItem() {
+    return jest.fn().mockReturnValue({
+      promise: Promise.resolve('ok'),
+      tempId: 'startAndFinishTestItem',
+    });
+  }
+
   mockSendLog() {
     return jest.fn().mockReturnValue({
       promise: Promise.resolve('ok'),
@@ -79,5 +87,5 @@ class RPClient {
 
 module.exports = {
   getOptions: (options) => Object.assign(reporterOptions, options),
-  RPClient,
+  OBClient,
 };

@@ -26,18 +26,24 @@ jobs:
       - name: Update npm
         run: npm install -g npm@latest
       - run: npm ci
-      - run: npm run build --if-present
-      - name: Publish package
-        run: npm publish
 
-      - name: Bump version and push changes
+      - name: Bump version
         id: version_bump
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          # The output of npm version is the new version number
+          # The output of npm version is the new version number, prefixed with 'v'
           new_version=$(npm version patch -m "chore(release): 🚀 %s")
           echo "new_version=$new_version" >> $GITHUB_OUTPUT
+
+      - name: Build
+        run: npm run build --if-present
+
+      - name: Publish package
+        run: npm publish
+
+      - name: Push changes
+        run: |
           git push
           git push --tags
 

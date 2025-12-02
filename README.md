@@ -13,12 +13,8 @@
       alt="NPM Version" />
   </a>
   <a href="https://github.com/orangebeard-io/jest-listener/actions">
-    <img src="https://img.shields.io/github/workflow/status/orangebeard-io/jest-listener/release?style=flat-square"
+    <img src="https://img.shields.io/github/actions/workflow/status/orangebeard-io/jest-listener/release.yml?branch=main&style=flat-square"
       alt="Build Status" />
-  </a>
-  <a href="https://github.com/orangebeard-io/jest-listener/blob/master/LICENSE">
-    <img src="https://img.shields.io/github/license/orangebeard-io/jest-listener?style=flat-square"
-      alt="License" />
   </a>
 </p>
 
@@ -68,40 +64,43 @@ Create a new file named `orangebeard.json` in the project root folder, next to `
 
 ```JSON
 {
-  "endpoint": "https://company.orangebeard.app",
-  "accessToken": "00000000-0000-0000-0000-000000000000",
-  "project": "project_name",
-  "testset": "testset_NAME_EXAMPLE",
-  "description": "Your description",
+  "endpoint": "https://app.orangebeard.io/[ORGANIZATION]",
+  "token": "[LISTENER TOKEN]",
+  "project": "example-project",
+  "testset": "Jest Test set",
+  "description": "Jest run",
   "attributes": [
     {
-      "key": "YourKey",
-      "value": "YourValue"
-    },
-    {
-      "value": "YourValue"
+      "key": "Tool",
+      "value": "Jest"
     }
   ],
-  "listenerMode": "DEFAULT",
-  "restClientConfig": {
-    "timeout": 0
-  }
+  "referenceUrl": "https://docs.orangebeard.io/"
 }
+
+```
+
+__It's good practice__ to omit the token from the json file and get it from your env:
+
+Windows cmd:
+```
+set orangebeard_token=[LISTENER TOKEN]
+```
+Linux/Mac:
+```
+export orangebeard_token=[LISTENER TOKEN]
 ```
 
 ### Environment properties
 
-Properties can also be set in the build, by passing them as environment variables. It's important to mention that environment variables have precedence over the `orangebeard.json` definition.
+Properties can also be set in the build, by passing them as environment variables.  
+It's important to mention that environment variables have precedence over the `orangebeard.json` definition.
 
 ```shell
-$ export ORANGEBEARD_ENDPOINT=https://company.orangebeard.app
-$ export ORANGEBEARD_ACCESSTOKEN=XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX
-$ export ORANGEBEARD_PROJECT=piet_personal
-$ export ORANGEBEARD_TESTSET=piet_TEST_EXAMPLE
+$ export ORANGEBEARD_ENDPOINT=https://app.orangebeard.io/[ORGANIZATION]
+$ export ORANGEBEARD_TOKEN=XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX
+$ export ORANGEBEARD_PROJECT=example_project
+$ export ORANGEBEARD_TESTSET=Jest testset
 $ export ORANGEBEARD_DESCRIPTION=My awesome testrun
 $ export ORANGEBEARD_ATTRIBUTES=key:value; value;
 ```
-
-### Tips & tricks
-
-We would advise you to always use the Jest `describe` method around a set of tests, even if it's just one test. In that way the listener creates a suite. If you still don't want to use the `describe` method then the default suite name is `Suite` plus your test name.

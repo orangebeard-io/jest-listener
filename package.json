@@ -1,18 +1,10 @@
 {
   "name": "@orangebeard-io/jest-listener",
-  "version": "1.0.21",
+  "version": "2.0.0",
   "description": "Orangebeard listener for the Javascript Jest unit test framework",
-  "main": "index.js",
+  "main": "dist/index.js",
   "scripts": {
-    "lint": "eslint \"./**/*.js\" --quiet",
-    "format:js": "npm run lint -- --fix",
-    "format:md": "prettier --write README.md",
-    "format": "npm run format:js && npm run format:md",
-    "test": "jest --detectOpenHandles --config ./jest.config.js",
-    "test:coverage": "jest --coverage",
-    "get-version": "echo $npm_package_version",
-    "update-version": "release-it --ci --no-git --no-npm.publish",
-    "create-changelog": "auto-changelog --template changelog-template.hbs --starting-version v$npm_package_version"
+    "build": "tsc"
   },
   "repository": {
     "type": "git",
@@ -29,20 +21,12 @@
   },
   "homepage": "https://github.com/orangebeard-io/jest-listener#readme",
   "dependencies": {
-    "@jest/reporters": "28.1.3",
-    "@orangebeard-io/javascript-client": "1.0.9",
-    "jest-cli": "28.1.3",
-    "strip-ansi": "7.0.1"
+    "@jest/reporters": "30.2.0",
+    "@orangebeard-io/javascript-client": "^2.0.8"
   },
   "devDependencies": {
-    "auto-changelog": "2.4.0",
-    "eslint": "8.21.0",
-    "eslint-config-airbnb-base": "15.0.0",
-    "eslint-config-prettier": "8.5.0",
-    "eslint-plugin-import": "2.26.0",
-    "eslint-plugin-prettier": "4.2.1",
-    "jest": "28.1.3",
-    "prettier": "2.7.1",
-    "release-it": "15.3.0"
-  }
+    "@js-joda/core": "^5.6.5",
+    "typescript": "^5.5.3"
+  },
+  "private": true
 }

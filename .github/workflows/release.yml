@@ -31,9 +31,18 @@ jobs:
         run: npm publish
 
       - name: Bump version and push changes
+        id: version_bump
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          npm version patch -m "chore(release): 🚀 %s"
+          # The output of npm version is the new version number
+          new_version=$(npm version patch -m "chore(release): 🚀 %s")
+          echo "new_version=$new_version" >> $GITHUB_OUTPUT
           git push
           git push --tags
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.version_bump.outputs.new_version }}
+          generate_release_notes: true
